@@ -6,15 +6,11 @@ import { Separator } from "@/components/shadcn/ui/separator";
 import { useToast } from "@/components/shadcn/ui/use-toast";
 import { Icons } from "@/components/utils/icon";
 import Title from "@/components/utils/title";
-import {
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "@radix-ui/react-tooltip";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 function page() {
+  const router = useRouter();
   const { toast } = useToast();
 
   const [username, setUsername] = useState("");
@@ -24,17 +20,32 @@ function page() {
   const auth = async () => {
     setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
+    const t = await fetch(`/api/auth`, {
+      method: "POST",
+      body: JSON.stringify({
+        username,
+        password,
+      }),
+    });
 
-      if (Math.random() < 0.4) {
-        toast({
-          title: "Can't login",
-          description: "Try again in a few seconds",
-          variant: "destructive",
-        });
-      }
-    }, 500);
+    if (t.status === 500) {
+      const error = await t.json();
+      toast({
+        description: `${error.description}. Try again in a few seconds`,
+        title: error.title,
+        variant: "destructive",
+      });
+    }
+
+    const token = (await t.json()).token;
+
+    localStorage.setItem("token", token);
+    localStorage.setItem("password", password);
+    localStorage.setItem("username", username);
+
+    setLoading(false);
+
+    router.back();
   };
 
   return (
