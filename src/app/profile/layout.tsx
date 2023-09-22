@@ -23,6 +23,12 @@ function layout({ children }: Props) {
     const token = localStorage.getItem("token");
     if (token === null) {
       router.push("/auth");
+      return;
+    }
+
+    const t = await fetch("/api/user", { headers: { token: token } });
+    if (t.status === 200) {
+      setUser(await t.json());
     }
   };
 
@@ -49,7 +55,10 @@ function layout({ children }: Props) {
           <Link href={"/profile/account"}>
             <Avatar>
               <AvatarFallback className="border-blue-500 font-bold text-blue-500 border-2 rounded-full p-2">
-                SA
+                {user.username
+                  .split(" ")
+                  .map((i) => i[0])
+                  .join("")}
               </AvatarFallback>
             </Avatar>
           </Link>
