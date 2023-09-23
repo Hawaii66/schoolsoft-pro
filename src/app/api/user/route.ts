@@ -8,7 +8,6 @@ export const GET = async (request: NextRequest) => {
   const token = GetToken(request);
   if (!token) return NextResponse.json(ReturnError("No token"));
 
-  console.log(token);
   const result = await SchoolsoftFetch(
     "https://sms.schoolsoft.se/nykopingsenskilda/rest-api/session",
     token

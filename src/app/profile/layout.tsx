@@ -47,7 +47,7 @@ function layout({ children }: Props) {
         user,
       }}
     >
-      <div className="p-4">
+      <div className="p-4 flex-grow">
         <div className="flex flex-row justify-between items-center">
           <Link href={"/profile"}>
             <Title>SchoolSoft Pro</Title>
