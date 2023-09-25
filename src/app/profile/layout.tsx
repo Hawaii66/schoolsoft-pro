@@ -14,7 +14,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-function layout({ children }: Props) {
+function Layout({ children }: Props) {
   const [user, setUser] = useState<User | undefined>();
   const router = useRouter();
   const apiFetch = useApiFetch();
@@ -73,4 +73,4 @@ function layout({ children }: Props) {
   );
 }
 
-export default layout;
+export default Layout;

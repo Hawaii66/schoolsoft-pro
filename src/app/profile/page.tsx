@@ -38,7 +38,7 @@ const getClasses = (lectures: Lecture[]) => {
   return Array.from(map).map((i) => i[1]);
 };
 
-function page() {
+function Page() {
   const [lectures, setLectures] = useState<Lecture[]>([]);
 
   const classes = getClasses(lectures);
@@ -134,4 +134,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;

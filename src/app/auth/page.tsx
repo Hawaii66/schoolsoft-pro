@@ -9,7 +9,7 @@ import Title from "@/components/utils/title";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
-function page() {
+function Page() {
   const router = useRouter();
   const { toast } = useToast();
 
@@ -82,4 +82,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;
