@@ -73,7 +73,7 @@ function page() {
   return (
     <div className="px-4 py-2 h-full">
       <div className="px-4 py-2 h-4/5 flex flex-row justify-evenly items-start">
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col ">
           <h1 className="text-center font-bold text-2xl">Tid</h1>
           <div
             className={`flex flex-col justify-between items-center flex-grow`}

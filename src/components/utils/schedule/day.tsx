@@ -2,6 +2,7 @@ import { Lecture, ScheduleSettings, WeekDay } from "@/intefaces/School";
 import { GetTime } from "@/utils/Functions";
 import { FormatTime, WeekDayStringShort } from "@/utils/ToString";
 import React, { useEffect, useState } from "react";
+import LecturePreview from "../lecturePreview";
 
 interface Props {
   lectures: Lecture[];
@@ -63,7 +64,7 @@ function Day({ day, lectures, settings, padding = "px-2" }: Props) {
     (clock - settings.start) / (settings.end - settings.start);
 
   return (
-    <div className={`flex-grow h-full flex flex-col ${padding}`}>
+    <div className={`flex-grow min-h-full flex flex-col ${padding}`}>
       <h1 className="text-center font-bold text-2xl">
         {WeekDayStringShort(day)}
       </h1>
@@ -91,19 +92,18 @@ function Day({ day, lectures, settings, padding = "px-2" }: Props) {
               backgroundColor: lecture.class.color,
             }}
           >
-            <div
-              onClick={() => alert("Show more info")}
-              className="hover:cursor-pointer absolute top-0 right-0 bottom-0 left-0 overflow-y-auto text-center flex justify-center items-center flex-col"
-            >
-              <p className="font-bold text-sm">
-                {lecture.class.name.charAt(0).toUpperCase()}
-                {lecture.class.name.substring(1)}
-              </p>
-              <p className="text-sm">
-                {FormatTime(lecture.start)} - {FormatTime(lecture.end)}
-              </p>
-              <p className="text-sm">{lecture.sal}</p>
-            </div>
+            <LecturePreview lecture={lecture}>
+              <div className="hover:cursor-pointer absolute top-0 right-0 bottom-0 left-0 overflow-y-auto text-center flex justify-center items-center flex-col">
+                <p className="font-bold text-sm">
+                  {lecture.class.name.charAt(0).toUpperCase()}
+                  {lecture.class.name.substring(1)}
+                </p>
+                <p className="text-sm">
+                  {FormatTime(lecture.start)} - {FormatTime(lecture.end)}
+                </p>
+                <p className="text-sm">{lecture.sal}</p>
+              </div>
+            </LecturePreview>
           </div>
         ))}
         <div
