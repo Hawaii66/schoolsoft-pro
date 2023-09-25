@@ -1,10 +1,9 @@
-import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <main>
-      <h1>What</h1>
-      <p>What et</p>
+    <main className="w-screen h-screen flex justify-center items-center">
+      <Link href={"/profile"}>Till din profil</Link>
     </main>
   );
 }
