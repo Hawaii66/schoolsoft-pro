@@ -11,6 +11,7 @@ type NodeInfo = {
   end: number;
   sal: string;
   href: string;
+  color: string;
 };
 
 const nodeToInfo = (node: HTMLElement | null): NodeInfo | undefined => {
@@ -18,6 +19,7 @@ const nodeToInfo = (node: HTMLElement | null): NodeInfo | undefined => {
   if (text === undefined) return undefined;
   return {
     ...textToInfo(text),
+    color: node?.getAttribute("style")?.split(";")[0].split(":")[1] || "",
     href: node?.parentNode.getAttribute("href") || "",
   };
 };
@@ -53,8 +55,7 @@ const GetMoreInfo = async (
   const result = await SchoolsoftFetch(url, token);
 
   const decoder = new TextDecoder("iso-8859-1");
-  const t = decoder.decode(await result.arrayBuffer());
-  const text = t;
+  const text = decoder.decode(await result.arrayBuffer());
 
   const tree = parse(text);
   var info = tree.querySelector("#hiddenheader")?.text || "";
@@ -91,7 +92,8 @@ export const GET = async (request: NextRequest) => {
     token
   );
 
-  const text = await result.text();
+  const decoder = new TextDecoder("iso-8859-1");
+  const text = decoder.decode(await result.arrayBuffer());
 
   const tree = parse(text);
   const allLectures = tree
@@ -111,7 +113,7 @@ export const GET = async (request: NextRequest) => {
 
   const lectures: Lecture[] = cleanLectures.map((node, idx) => ({
     class: {
-      color: "",
+      color: node.color,
       name: node.name,
       teacher: moreInfo[idx].teacher,
     },

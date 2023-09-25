@@ -52,15 +52,7 @@ function page() {
 
     const lectures: Lecture[] = await result.json();
 
-    setLectures(
-      lectures.map((i) => ({
-        ...i,
-        class: {
-          ...i.class,
-          color: colors[Math.floor(Math.random() * colors.length)],
-        },
-      }))
-    );
+    setLectures(lectures);
   };
 
   const setColor = (className: string, color: string) => {
@@ -89,7 +81,10 @@ function page() {
             {Array.from({ length: (settings.end - settings.start) / 30 })
               .map((_, idx) => idx)
               .map((i) => (
-                <div className="flex-grow flex justify-center items-center m-0 py-0 border w-full">
+                <div
+                  key={i}
+                  className="flex-grow flex justify-center items-center m-0 py-0 border w-full"
+                >
                   <p className=" px-2 font-extralight text-sm">
                     {(Math.floor((i * 30) / 60) + settings.start / 60)
                       .toString()
@@ -110,6 +105,7 @@ function page() {
             const lecturesToday = lectures.filter((i) => i.weekday === day);
             return (
               <Day
+                key={day}
                 padding={idx === 0 ? "pr-2" : undefined}
                 day={day}
                 lectures={lecturesToday}
@@ -120,11 +116,12 @@ function page() {
       </div>
       <div className="w-1/5 px-4">
         {classes.map((schoolClass) => (
-          <div className="grid grid-cols-2 w-full gap-4">
+          <div key={schoolClass.name} className="grid grid-cols-2 w-full gap-4">
             <h1 className="">{schoolClass.name}</h1>
             <div className="flex flex-grow flex-row gap-4">
               {colors.map((c) => (
                 <div
+                  key={c}
                   onClick={() => setColor(schoolClass.name, c)}
                   className={`rounded-full aspect-square h-4 ${c}`}
                 />

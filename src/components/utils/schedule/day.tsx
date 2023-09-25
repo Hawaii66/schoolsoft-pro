@@ -53,11 +53,14 @@ function Day({ day, lectures, settings, padding = "px-2" }: Props) {
   useEffect(() => {
     const t = setInterval(() => {
       const time = GetTime();
-      console.log(time);
+      setClock(time);
     }, 100);
 
     () => clearInterval(t);
   }, []);
+
+  const timePercent =
+    (clock - settings.start) / (settings.end - settings.start);
 
   return (
     <div className={`flex-grow h-full flex flex-col ${padding}`}>
@@ -67,24 +70,25 @@ function Day({ day, lectures, settings, padding = "px-2" }: Props) {
       <div
         className={`flex-grow relative border grid grid-rows-[repeat(${settings.splits},1fr)] grid-cols-${maxOverlapp}`}
       >
-        <div
-          className="absolute left-0 right-0 h-1 bg-red-800 z-50"
-          style={{
-            top: `${
-              ((settings.end - settings.start) * (clock * 100) +
-                settings.start) /
-              (settings.end - settings.start)
-            }%`,
-          }}
-        ></div>
+        {timePercent > 1 || timePercent < 0 ? (
+          <></>
+        ) : (
+          <div
+            className="absolute left-0 right-0 h-1 bg-red-800 z-50"
+            style={{
+              top: `${timePercent * 100}%`,
+            }}
+          ></div>
+        )}
         {lectures.map((lecture) => (
           <div
             key={`${lecture.start}-${lecture.end}-${lecture.class.color}`}
-            className={`w-full ${lecture.class.color}`}
+            className={`w-full ${lecture.class.color} rounded-md`}
             style={{
               gridRowStart: Math.floor(toSplit(lecture.start, settings)),
               gridRowEnd: Math.floor(toSplit(lecture.end, settings)),
               position: "relative",
+              backgroundColor: lecture.class.color,
             }}
           >
             <div

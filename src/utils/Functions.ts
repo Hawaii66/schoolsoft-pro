@@ -13,7 +13,7 @@ export const Remap = (
 
 export const GetTime = () => {
   const time = new Date();
-  const hour = time.getHours() - 6;
+  const hour = time.getHours();
   const minutes = time.getMinutes();
   return hour * 60 + minutes;
 };
