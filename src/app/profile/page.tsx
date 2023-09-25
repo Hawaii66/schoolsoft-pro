@@ -1,123 +1,136 @@
 "use client";
 
+import { Input } from "@/components/shadcn/ui/input";
+import { Slider } from "@/components/shadcn/ui/slider";
+import Day from "@/components/utils/schedule/day";
+import { Class, Lecture, WeekDay } from "@/intefaces/School";
 import React, { useEffect, useState } from "react";
-
-const colors = [
-  "bg-red-500",
-  "bg-green-500",
-  "bg-purple-500",
-  "bg-blue-500",
-  "bg-yellow-500",
-];
-
-type Lecture = {
-  start: number;
-  end: number;
-  color: number;
-};
-
-const lectures: Lecture[] = [
-  {
-    color: 0,
-    start: 8 * 60 + 30,
-    end: 9 * 60 + 20,
-  },
-  {
-    color: 1,
-    start: 10 * 60 + 10,
-    end: 10 * 60 + 50,
-  },
-  {
-    color: 4,
-    start: 13 * 60 + 30,
-    end: 15 * 60 + 50,
-  },
-  {
-    color: 3,
-    start: 12 * 60 + 30,
-    end: 15 * 60 + 0,
-  },
-  {
-    color: 2,
-    start: 8 * 60 + 30,
-    end: 16 * 60 + 0,
-  },
-];
-
-const overlapping = (lectures: Lecture[]) => {
-  var max = 0;
-  var lecturesOnTime: number[] = Array.from({ length: 17 * 60 }).map((_) => 0);
-
-  for (var time = 0; time < 17 * 60; time += 1) {
-    lectures.forEach((lecture) => {
-      if (lecture.start <= time && lecture.end >= time) {
-        lecturesOnTime[time] += 1;
-      }
-    });
-  }
-
-  lecturesOnTime.forEach((time) => {
-    if (time > max) {
-      max = time;
-    }
-  });
-
-  return max;
-};
 
 const settings = {
   start: 8 * 60,
-  end: 17 * 60,
-  splits: 500,
+  end: 18 * 60,
+  splits: 300,
 };
 
-const range = settings.end - settings.start;
+const colors = [
+  "bg-blue-500",
+  "bg-yellow-500",
+  "bg-red-500",
+  "bg-purple-500",
+  "bg-green-500",
+  "bg-orange-500",
+  "bg-lime-500",
+  "bg-teal-500",
+  "bg-indigo-500",
+  "bg-pink-500",
+];
 
-const toPercent = (time: number, sett: typeof settings) => {
-  const zeroStart = time - sett.start;
-  const percent = zeroStart / range;
-  return percent;
-};
+const days: WeekDay[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
-const toSplit = (time: number, sett: typeof settings) => {
-  return toPercent(time, sett) * settings.splits;
+const getClasses = (lectures: Lecture[]) => {
+  const map = new Map<string, Class>();
+  lectures.forEach((lectures) => {
+    if (map.has(lectures.class.name)) {
+      return;
+    }
+    map.set(lectures.class.name, lectures.class);
+  });
+  return Array.from(map).map((i) => i[1]);
 };
 
 function page() {
-  const [maxOverlapp, setMaxOverlap] = useState(0);
+  const [lectures, setLectures] = useState<Lecture[]>([]);
 
-  const test = async () => {
+  const classes = getClasses(lectures);
+
+  const getLectures = async () => {
     const result = await fetch("/api/user/schedule", {
       headers: {
         token: localStorage.getItem("token") || "",
       },
     });
 
-    console.log(await result.json());
+    const lectures: Lecture[] = await result.json();
+
+    setLectures(
+      lectures.map((i) => ({
+        ...i,
+        class: {
+          ...i.class,
+          color: colors[Math.floor(Math.random() * colors.length)],
+        },
+      }))
+    );
+  };
+
+  const setColor = (className: string, color: string) => {
+    setLectures((lectures) =>
+      lectures.map((lecture) => {
+        if (lecture.class.name === className) {
+          return { ...lecture, class: { ...lecture.class, color: color } };
+        }
+        return lecture;
+      })
+    );
   };
 
   useEffect(() => {
-    test();
+    getLectures();
   }, []);
 
-  useEffect(() => {
-    setMaxOverlap(overlapping(lectures));
-  }, [...lectures]);
-
   return (
-    <div className="px-4 py-2 h-1/2">
-      <div
-        className={`w-[1/2] h-full bg-blue-300 grid grid-rows-[repeat(${settings.splits},1fr)] grid-cols-${maxOverlapp}`}
-      >
-        {lectures.map((lecture) => (
+    <div className="px-4 py-2 h-full">
+      <div className="px-4 py-2 h-4/5 flex flex-row justify-evenly items-start">
+        <div className="h-full flex flex-col">
+          <h1 className="text-center font-bold text-2xl">Tid</h1>
           <div
-            key={`${lecture.start}-${lecture.end}-${lecture.color}`}
-            className={`${colors[lecture.color]} w-full`}
-            style={{
-              gridRowStart: Math.floor(toSplit(lecture.start, settings)),
-              gridRowEnd: Math.floor(toSplit(lecture.end, settings)),
-            }}
-          />
+            className={`flex flex-col justify-between items-center flex-grow`}
+          >
+            {Array.from({ length: (settings.end - settings.start) / 30 })
+              .map((_, idx) => idx)
+              .map((i) => (
+                <div className="flex-grow flex justify-center items-center m-0 py-0 border w-full">
+                  <p className=" px-2 font-extralight text-sm">
+                    {(Math.floor((i * 30) / 60) + settings.start / 60)
+                      .toString()
+                      .padStart(2, "0")}
+                    :{((i * 30) % 60).toString().padEnd(2, "0")}
+                  </p>
+                </div>
+              ))}
+          </div>
+        </div>
+        {days
+          .filter((day) => {
+            const lecturesToday = lectures.filter((i) => i.weekday === day);
+            if (lecturesToday.length === 0) return false;
+            return true;
+          })
+          .map((day, idx) => {
+            const lecturesToday = lectures.filter((i) => i.weekday === day);
+            return (
+              <Day
+                padding={idx === 0 ? "pr-2" : undefined}
+                day={day}
+                lectures={lecturesToday}
+                settings={settings}
+              />
+            );
+          })}
+      </div>
+      <div className="w-1/5 px-4">
+        {classes.map((schoolClass) => (
+          <div className="grid grid-cols-2 w-full gap-4">
+            <h1 className="">{schoolClass.name}</h1>
+            <div className="flex flex-grow flex-row gap-4">
+              {colors.map((c) => (
+                <div
+                  onClick={() => setColor(schoolClass.name, c)}
+                  className={`rounded-full aspect-square h-4 ${c}`}
+                />
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     </div>

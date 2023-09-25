@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback } from "@/components/shadcn/ui/avatar";
 import { Separator } from "@/components/shadcn/ui/separator";
 import Title from "@/components/utils/title";
 import { UserContext } from "@/context/UserContext";
+import { useApiFetch } from "@/hooks/useApiFetch";
 import { User } from "@/intefaces/User";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,6 +17,7 @@ interface Props {
 function layout({ children }: Props) {
   const [user, setUser] = useState<User | undefined>();
   const router = useRouter();
+  const apiFetch = useApiFetch();
 
   const logout = async () => {};
 
@@ -26,8 +28,9 @@ function layout({ children }: Props) {
       return;
     }
 
-    const t = await fetch("/api/user", { headers: { token: token } });
-    if (t.status === 200) {
+    const t = await apiFetch("/api/user", "GET");
+
+    if (t !== undefined) {
       setUser(await t.json());
     }
   };

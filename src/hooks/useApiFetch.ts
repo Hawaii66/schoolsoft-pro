@@ -24,44 +24,47 @@ const apiFetchToken = async <T>(
   }
 };
 
-export const useApiFetch = async <T>(
-  url: string,
-  method: "GET" | "POST",
-  body?: T
-) => {
+export const useApiFetch = () => {
   const router = useRouter();
-  var token = localStorage.getItem("token");
 
-  var result = await apiFetchToken(url, method, token || "", body);
+  const fetchSchoolSoft = async <T>(
+    url: string,
+    method: "GET" | "POST",
+    body?: T
+  ) => {
+    var token = localStorage.getItem("token");
 
-  if (result.status === 401) {
-    const username = localStorage.get("username");
-    const password = localStorage.get("password");
+    var result = await apiFetchToken(url, method, token || "", body);
 
-    const t = await fetch(`/api/auth`, {
-      method: "POST",
-      body: JSON.stringify({
-        username,
-        password,
-      }),
-    });
+    if (result.status === 401) {
+      const username = localStorage.getItem("username");
+      const password = localStorage.getItem("password");
 
-    if (t.status === 500) {
-      router.push("/auth");
-      return undefined;
+      const t = await fetch(`/api/auth`, {
+        method: "POST",
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
+
+      if (t.status === 500) {
+        router.push("/auth");
+        return undefined;
+      }
+
+      token = (await t.json()).token;
+      if (token === null) {
+        router.push("/auth");
+        return undefined;
+      }
+      localStorage.setItem("token", token);
+
+      result = await apiFetchToken(url, method, token || "", body);
     }
 
-    token = (await t.json()).token;
-    if (token === null) {
-      router.push("/auth");
-      return undefined;
-    }
-    localStorage.setItem("token", token);
+    return result;
+  };
 
-    result = await apiFetchToken(url, method, token || "", body);
-  }
-
-  const data = await result.json();
-
-  return data;
+  return fetchSchoolSoft;
 };
